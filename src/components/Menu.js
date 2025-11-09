@@ -31,25 +31,25 @@ const Menu = () => {
     { index: '01', label: 'Home', path: '/' },
     { index: '02', label: 'Algorithm List', path: '/algorithms' },
     { index: '03', label: 'About', path: '/about' },
-    { index: '04', label: 'Github', path: '/github' },
+    { index: '04', label: 'Github', external: true, url: 'https://github.com/bilalaniq/VisualCodex' },
   ];
 
   return (
     <div className="menu-wrapper">
       <div className="social-links">
-        <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="social-link">
+        <a href="https://github.com/bilalaniq/VisualCodex" className="social-link">
           <i className="fab fa-github"></i>
         </a>
-        <a href="#" className="social-link" title="Source Code">
+        <a href="https://github.com/bilalaniq/VisualCodex" className="social-link" title="Source Code">
           <i className="fas fa-code"></i>
         </a>
-        <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="social-link">
+        <a href="https://linkedin.com/in/yourusername" className="social-link">
           <i className="fab fa-linkedin"></i>
         </a>
         <a href="mailto:your@email.com" className="social-link">
           <i className="fas fa-envelope"></i>
         </a>
-        <a href="https://instagram.com/yourusername" target="_blank" rel="noopener noreferrer" className="social-link">
+        <a href="https://instagram.com/yourusername" className="social-link">
           <i className="fab fa-instagram"></i>
         </a>
       </div>
