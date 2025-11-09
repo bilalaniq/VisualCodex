@@ -1,0 +1,144 @@
+/* components/AboutPage.css */
+.about-container {
+  background: #ffffff;
+  color: #1f2937;
+  font-family: 'Rubik', sans-serif;
+  line-height: 1.7;
+  padding: 3rem 2rem;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #000000; /* Dark black */
+  font-family: 'Audiowide', cursive;
+  margin-top: 4rem; 
+}
+
+.highlight {
+  color: #000000;
+  font-family: 'Audiowide', cursive;
+}
+
+.about-hero p {
+  max-width: 700px;
+  margin: 1rem auto;
+  color: #4b5563;
+  font-size: 1.2rem;
+}
+
+.about-section {
+  max-width: 800px;
+  margin: 0 auto 3rem auto;
+  text-align: center;
+}
+
+.about-section h2 {
+  color: #000000; /* Dark black */
+  margin-bottom: 1rem;
+  font-family: 'Audiowide', cursive;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.features-section {
+  background-color: #f9fafb;
+  padding: 3rem 1rem;
+  border-radius: 1rem;
+}
+
+.features-section h2 {
+  text-align: center;
+  color: #000000; /* Dark black */
+  margin-bottom: 2rem;
+  font-family: 'Audiowide', cursive;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(79,70,229,0.15);
+}
+
+.feature-card h3 {
+  color: #000000; /* Dark black */
+  font-family: 'Audiowide', cursive;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.creator-section {
+  text-align: center;
+  margin-top: 4rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.creator-section h2 {
+  color: #000000; /* Dark black */
+  margin-bottom: 1rem;
+  font-family: 'Audiowide', cursive;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.about-footer {
+  text-align: center;
+  margin-top: 4rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* If you have any other heading elements, add them here */
+.about-container h1,
+.about-container h2,
+.about-container h3,
+.about-container h4,
+.about-container h5,
+.about-container h6 {
+  color: #000000; /* Dark black */
+  font-family: 'Audiowide', cursive;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .about-hero h1 {
+    font-size: 2.2rem;
+  }
+  
+  .about-section h2,
+  .features-section h2,
+  .creator-section h2 {
+    font-size: 1.6rem;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.1rem;
+  }
+}

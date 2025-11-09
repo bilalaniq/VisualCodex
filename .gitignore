@@ -1,23 +1,97 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# =========================
+# Node.js + React .gitignore
+# =========================
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Node modules (both frontend & backend)
+node_modules/
+*/node_modules/
 
-# testing
-/coverage
+# Build outputs
+build/
+dist/
+.cache/
+.next/
+out/
+coverage/
 
-# production
-/build
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# misc
-.DS_Store
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary / Backup files
+*.tmp
+*.bak
+*.old
+
+# Local package locks (optional — keep if using lockfile)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Lint caches
+.eslintcache
+.stylelintcache
+
+# React specific
+# (Ignore local dev build if you run 'npm run build')
+/frontend/build
+/public/static
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional: If using Capacitor or Cordova
+android/
+ios/
+
+# Optional: If using Docker
+docker-compose.override.yml
+.dockerignore
+Dockerfile*
+
+# Optional: If using VS Code devcontainers
+.devcontainer/
+
+# Optional: Next.js / Vite caches
+.next/
+vite.config.ts.timestamp*
+vite.config.js.timestamp*
+
+# Optional: Local data
+tmp/
+data/
+uploads/
