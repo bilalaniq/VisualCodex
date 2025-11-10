@@ -34,8 +34,12 @@ body {
   pointer-events: all; 
 }
 
+body.menu-open {
+  overflow: hidden;
+}
+
 .menu-wrapper {
-  position: fixed;
+  position: absolute;
   left: 4vmin;
   top: 4vmin;
   z-index: 1001;
@@ -167,7 +171,7 @@ body {
   left: 0;
   top: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
@@ -178,7 +182,18 @@ body {
   pointer-events: all;
   visibility: visible;
   opacity: 1;
+  position: fixed;
   transition: visibility 1s, opacity 1s ease-in-out;
+}
+
+/* Container for the expanded menu content */
+#menu-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
 }
 
 #menu-toggle {
@@ -191,11 +206,9 @@ body {
   gap: 5px;
   height: 50px;
   justify-content: center;
-  left: 30px;
   padding: 0px;
   pointer-events: all;
-  position: fixed;
-  top: 30px;
+  position: absolute;
   width: 50px;
   z-index: 1001;
 }

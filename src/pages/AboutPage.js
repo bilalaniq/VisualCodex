@@ -1,71 +1,95 @@
-// components/AboutPage.js
 import React from "react";
 import "./AboutPage.css";
+import { FaLightbulb, FaCode, FaTree, FaProjectDiagram } from 'react-icons/fa';
 
 const AboutPage = () => {
   return (
     <div className="about-container">
       {/* Hero Section */}
       <section className="about-hero">
-        
-        <h1>
-          <span className="highlight">Visualizing Algorithms</span>
-        </h1>
-        <p>
-          Learn, interact, and master algorithms through visualization.  
-          We transform abstract computer science concepts into beautiful, 
-          dynamic, and intuitive visuals.
-        </p>
-      </section>
-
-      {/* About Project */}
-      <section className="about-section">
-        <h2>Visualizing AlgorithmsOur Mission</h2>
-        <p>
-          Understanding algorithms can be challenging — walls of code, loops, 
-          and recursion can easily become overwhelming.  
-          <strong>Visualizing Algorithms</strong> aims to make this learning 
-          process clear and engaging by showing every step in real-time.
-        </p>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <h2>What You Can Explore</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <h3>Pathfinding</h3>
-            <p>BFS, DFS, Dijkstra, and A* — watch nodes connect as they find the shortest path.</p>
-          </div>
-          <div className="feature-card">
-            <h3>Sorting</h3>
-            <p>Visualize sorting algorithms like Bubble, Merge, and Quick Sort step by step.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🌳 Trees</h3>
-            <p>Understand Binary Search Trees and traversals through dynamic animations.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🕸️ Graphs</h3>
-            <p>Learn how networks connect and evolve using graph traversal techniques.</p>
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Making Algorithms <span className="highlight">Visual</span>
+          </h1>
+          <p className="hero-description">
+            Transform complex algorithms into intuitive visualizations.
+            Experience the power of visual learning in computer science.
+          </p>
+          <div className="hero-buttons">
+            <a href="/algorithms" className="primary-button">Start Learning</a>
+            <a href="https://github.com/bilalaniq/VisualCodex" className="secondary-button">View Source</a>
           </div>
         </div>
       </section>
 
-      {/* Developer Section */}
-      <section className="creator-section">
-        <h2>About the Creator</h2>
-        <p>
-          Developed by <strong>Muhammad Bilal</strong> — a cybersecurity and software enthusiast 
-          passionate about making complex concepts simple and visual.  
-          This project is part of his mission to help students and developers 
-          truly understand how algorithms think.
-        </p>
+      {/* Mission Section */}
+      <section className="mission-section">
+        <div className="section-content">
+          <h2>Our Mission</h2>
+          <p>
+            We believe learning algorithms should be engaging and intuitive. 
+            Through interactive visualizations, we break down complex concepts 
+            into digestible, step-by-step animations that make learning a joy.
+          </p>
+        </div>
       </section>
 
-      {/* Footer Line */}
+      {/* Features Section */}
+      <section className="features-section">
+        <h2>What You'll Learn</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">
+              <FaProjectDiagram />
+            </div>
+            <h3>Pathfinding Algorithms</h3>
+            <p>Explore BFS, DFS, Dijkstra, and A* algorithms through interactive node networks.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <FaCode />
+            </div>
+            <h3>Sorting Visualized</h3>
+            <p>Watch how Bubble, Merge, and Quick Sort transform unordered data into perfect sequences.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <FaTree />
+            </div>
+            <h3>Tree Structures</h3>
+            <p>Master Binary Search Trees and various traversal techniques with clear animations.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <FaLightbulb />
+            </div>
+            <h3>Graph Theory</h3>
+            <p>Understand the fundamentals of graph algorithms through interactive demonstrations.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Creator Section */}
+      <section className="creator-section">
+        <div className="creator-content">
+          <h2>Meet the Creator</h2>
+          <div className="creator-info">
+            <p>
+              Hi! I'm <strong>Muhammad Bilal</strong>, a cybersecurity engineer and software developer
+              passionate about making computer science education more accessible and engaging.
+              VisualCodex is my contribution to helping students and developers understand
+              algorithms through the power of visualization.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer className="about-footer">
-        <p>© {new Date().getFullYear()} Visualizing Algorithms — Crafted with ❤️ by Bilal</p>
+        <div className="footer-content">
+          <p>© {new Date().getFullYear()} VisualCodex</p>
+          <p>Crafted with ❤️ by Muhammad Bilal</p>
+        </div>
       </footer>
     </div>
   );

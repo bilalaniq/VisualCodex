@@ -21,7 +21,7 @@ const FrontPage = () => {
               Learn efficiently, grasp concepts faster, and gain a deeper understanding of
               computer science fundamentals.
             </p>
-            <button 
+            <button
               className="cta-button"
               onClick={handleExploreClick}
             >
@@ -87,6 +87,87 @@ const FrontPage = () => {
                 <div className="ball"></div>
               </div>
               <div className="cube cube8">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube9">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube10">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube11">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube12">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube13">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              {/* Additional five cubes (14..18) added */}
+              <div className="cube cube14">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube15">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube16">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube17">
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="cube__side"></div>
+                <div className="ball"></div>
+              </div>
+              <div className="cube cube18">
                 <div className="cube__side"></div>
                 <div className="cube__side"></div>
                 <div className="cube__side"></div>

@@ -18,6 +18,12 @@ const Menu = () => {
       document.body.style.backgroundColor = 'var(--background-light)';
       document.body.classList.remove('menu-open');
     }
+
+    return () => {
+      // Cleanup function
+      document.body.style.backgroundColor = 'var(--background-light)';
+      document.body.classList.remove('menu-open');
+    };
   }, [isToggled]);
 
   const navigate = useNavigate();
@@ -34,23 +40,28 @@ const Menu = () => {
     { index: '04', label: 'Github', external: true, url: 'https://github.com/bilalaniq/VisualCodex' },
   ];
 
+  const handleExternalLink = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="menu-wrapper">
       <div className="social-links">
-        <a href="https://github.com/bilalaniq/VisualCodex" className="social-link">
+        <a href="https://github.com/bilalaniq/VisualCodex" 
+           className="social-link" 
+           target="_blank" 
+           rel="noopener noreferrer">
           <i className="fab fa-github"></i>
         </a>
-        <a href="https://github.com/bilalaniq/VisualCodex" className="social-link" title="Source Code">
-          <i className="fas fa-code"></i>
-        </a>
-        <a href="https://linkedin.com/in/yourusername" className="social-link">
+        <a href="https://www.linkedin.com/in/bilal-aniq" 
+           className="social-link" 
+           target="_blank" 
+           rel="noopener noreferrer">
           <i className="fab fa-linkedin"></i>
         </a>
-        <a href="mailto:your@email.com" className="social-link">
+        <a href="mailto:contact@visualcodex.dev" 
+           className="social-link">
           <i className="fas fa-envelope"></i>
-        </a>
-        <a href="https://instagram.com/yourusername" className="social-link">
-          <i className="fab fa-instagram"></i>
         </a>
       </div>
       <button 
