@@ -7,13 +7,14 @@ import './StackArray.css';
 
 const StackArray = () => {
   const [inputValue, setInputValue] = useState('');
-  const [message, setMessage] = useState('');
+  // Removed unused message state
   
   const animationManager = useAnimationManager(1000, 500);
   const algorithm = useAlgorithm(animationManager);
   
   const { cmd, implementAction, getNextId, addControlToAlgorithmBar } = algorithm;
-  const { getObjects, isAnimating, skipForward, clearHistory, startNewAnimation, setAnimationSpeed, animationSpeed, objectsVersion } = animationManager;
+  const { getObjects, isAnimating, skipForward, startNewAnimation, setAnimationSpeed, animationSpeed, objectsVersion } = animationManager;
+  // Removed unused clearHistory
 
   // Constants matching the original
   const ARRAY_START_X = 100;
@@ -210,17 +211,14 @@ const StackArray = () => {
   useEffect(() => {
     const initialCommands = setup();
     startNewAnimation(initialCommands);
-    // Remove skipForward() and clearHistory() from here
-    // Let the animation run naturally
   }, [setup, startNewAnimation]);
 
-  // Add controls to algorithm bar
+  // Add controls to algorithm bar - remove unused variables
   useEffect(() => {
-    // This simulates adding controls to the algorithm bar
-    const pushField = addControlToAlgorithmBar("Text", "");
-    const pushButton = addControlToAlgorithmBar("Button", "Push");
-    const popButton = addControlToAlgorithmBar("Button", "Pop");
-    const clearButton = addControlToAlgorithmBar("Button", "Clear Stack");
+    addControlToAlgorithmBar("Text", "");
+    addControlToAlgorithmBar("Button", "Push");
+    addControlToAlgorithmBar("Button", "Pop");
+    addControlToAlgorithmBar("Button", "Clear Stack");
   }, [addControlToAlgorithmBar]);
 
   return (

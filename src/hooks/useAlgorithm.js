@@ -6,24 +6,23 @@ const useAlgorithm = (animationManager) => {
   const recordAnimationRef = useRef(true);
   const { cmd, startNewAnimation, getNextId } = animationManager;
 
+  // Define controlKey first so it's available for other functions
+  const controlKey = useCallback((keyASCII) => {
+    return keyASCII === 8 || keyASCII === 9 || keyASCII === 37 || keyASCII === 38 ||
+           keyASCII === 39 || keyASCII === 40 || keyASCII === 46;
+  }, []);
+
   const implementAction = useCallback((action, value) => {
     if (recordAnimationRef.current) {
       actionHistoryRef.current.push([action, value]);
     }
     
     const commands = action(value);
-    // Always call startNewAnimation with the returned commands (may be
-    // an empty array). The animation manager snapshots any commands
-    // recorded via `cmd(...)` when startNewAnimation is invoked, so
-    // callers that use cmd() (and return an empty array) will still
-    // have their recorded commands executed.
     startNewAnimation(commands);
     return commands;
   }, [startNewAnimation, recordAnimationRef]);
 
   const addControlToAlgorithmBar = useCallback((type, name) => {
-    // This would be implemented in your UI component
-    // Returns a reference to the created control
     return { type, name, id: getNextId() };
   }, [getNextId]);
 
@@ -68,12 +67,7 @@ const useAlgorithm = (animationManager) => {
       
       return true;
     };
-  }, []);
-
-  const controlKey = useCallback((keyASCII) => {
-    return keyASCII === 8 || keyASCII === 9 || keyASCII === 37 || keyASCII === 38 ||
-           keyASCII === 39 || keyASCII === 40 || keyASCII === 46;
-  }, []);
+  }, [controlKey]); // Added controlKey dependency
 
   const returnSubmitFloat = useCallback((field, action, maxsize) => {
     return (event) => {
@@ -114,7 +108,6 @@ const useAlgorithm = (animationManager) => {
   }, []);
 
   const reset = useCallback(() => {
-    // To be implemented by specific algorithm
     console.log('Reset called - implement in specific algorithm');
   }, []);
 
@@ -123,7 +116,6 @@ const useAlgorithm = (animationManager) => {
       actionHistoryRef.current.pop();
       reset();
       
-      // Replay all actions except the last one
       const len = actionHistoryRef.current.length;
       recordAnimationRef.current = false;
       for (let i = 0; i < len; i++) {
@@ -151,8 +143,6 @@ const useAlgorithm = (animationManager) => {
   }, [isAllDigits]);
 
   const setCodeAlpha = useCallback((code, newAlpha) => {
-    // This would handle code highlighting alpha changes
-    // Implementation depends on how code display is handled
     console.log('Set code alpha:', code, newAlpha);
   }, []);
 
@@ -180,12 +170,10 @@ const useAlgorithm = (animationManager) => {
   }, [returnSubmit]);
 
   const disableUI = useCallback(() => {
-    // To be implemented by specific algorithm
     console.log('UI disabled - implement in specific algorithm');
   }, []);
 
   const enableUI = useCallback(() => {
-    // To be implemented by specific algorithm
     console.log('UI enabled - implement in specific algorithm');
   }, []);
 

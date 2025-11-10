@@ -8,7 +8,7 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
   const [objectsVersion, setObjectsVersion] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [animationSpeed, setAnimationSpeed] = useState(500);
-  const animationRef = useRef(null);
+  // Removed unused animationRef
   const commandHistoryRef = useRef([]);
   const objectManagerRef = useRef(new Map());
   const nextIdRef = useRef(0);
@@ -18,27 +18,112 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
     setObjectsVersion(prev => prev + 1);
   }, []);
 
-  const cmd = useCallback((command, ...args) => {
-    const commandString = [command, ...args].join('<;>');
-    commandsRef.current.push(commandString);
-    return commandString;
-  }, []);
+  // Define all object management functions first with proper dependencies
+  const createRectangle = useCallback((id, text, width, height, x, y) => {
+    objectManagerRef.current.set(id, {
+      type: 'rectangle',
+      id,
+      text: text || "",
+      width: parseInt(width, 10),
+      height: parseInt(height, 10),
+      x: parseInt(x, 10),
+      y: parseInt(y, 10),
+      color: '#FFFFFF',
+      borderColor: '#000000',
+      textColor: '#000000',
+      alpha: 1,
+      layer: 0,
+      highlight: false
+    });
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
 
-  const startNewAnimation = useCallback((newCommands = []) => {
-    // Use provided commands or current commandsRef
-    const commandsToUse = Array.isArray(newCommands) && newCommands.length > 0 
-      ? newCommands.slice() 
-      : commandsRef.current.slice();
-    
-    setCommandsState(commandsToUse);
-    commandHistoryRef.current = commandsToUse.slice();
-    setCurrentStep(0);
-    setIsAnimating(true);
-    
-    // Clear any existing commands for next operation
-    commandsRef.current = [];
-  }, []);
+  const createLabel = useCallback((id, text, x, y) => {
+    objectManagerRef.current.set(id, {
+      type: 'label',
+      id,
+      text: text || "",
+      x: parseInt(x, 10),
+      y: parseInt(y, 10),
+      textColor: '#000000',
+      alpha: 1,
+      layer: 0
+    });
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
 
+  const moveObject = useCallback((id, x, y) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) {
+      obj.x = parseInt(x, 10);
+      obj.y = parseInt(y, 10);
+      forceObjectsUpdate();
+    }
+  }, [forceObjectsUpdate]);
+
+  const setText = useCallback((id, text) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) {
+      obj.text = text !== undefined && text !== null ? text.toString() : "";
+      forceObjectsUpdate();
+    }
+  }, [forceObjectsUpdate]);
+
+  const setHighlight = useCallback((id, highlight) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) {
+      obj.highlight = parseInt(highlight, 10) === 1;
+      forceObjectsUpdate();
+    }
+  }, [forceObjectsUpdate]);
+
+  const createHighlightCircle = useCallback((id, color, x, y) => {
+    objectManagerRef.current.set(id, {
+      type: 'highlightCircle',
+      id,
+      color: color || '#0000FF',
+      x: parseInt(x, 10),
+      y: parseInt(y, 10),
+      radius: 20,
+      alpha: 1,
+      layer: 1
+    });
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
+
+  const deleteObject = useCallback((id) => {
+    objectManagerRef.current.delete(id);
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
+
+  const setForegroundColor = useCallback((id, color) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) obj.textColor = color;
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
+
+  const setLayer = useCallback((id, layer) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) obj.layer = parseInt(layer, 10);
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
+
+  const alignRight = useCallback((id, referenceId) => {
+    const obj = objectManagerRef.current.get(id);
+    const refObj = objectManagerRef.current.get(referenceId);
+    if (obj && refObj) {
+      obj.x = refObj.x + refObj.width;
+      forceObjectsUpdate();
+    }
+  }, [forceObjectsUpdate]);
+
+  const setAlpha = useCallback((id, alpha) => {
+    const obj = objectManagerRef.current.get(id);
+    if (obj) obj.alpha = parseFloat(alpha);
+    forceObjectsUpdate();
+  }, [forceObjectsUpdate]);
+
+  // Now define executeCommand with all dependencies
   const executeCommand = useCallback((commandString) => {
     const [command, ...args] = commandString.split('<;>');
 
@@ -86,103 +171,37 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
     } catch (error) {
       console.error('Error executing command:', commandString, error);
     }
+  }, [
+    createRectangle,
+    createLabel,
+    moveObject,
+    setText,
+    setHighlight,
+    createHighlightCircle,
+    deleteObject,
+    setForegroundColor,
+    setLayer,
+    alignRight,
+    setAlpha
+  ]);
+
+  const cmd = useCallback((command, ...args) => {
+    const commandString = [command, ...args].join('<;>');
+    commandsRef.current.push(commandString);
+    return commandString;
+  }, []);
+
+  const startNewAnimation = useCallback((newCommands = []) => {
+    const commandsToUse = Array.isArray(newCommands) && newCommands.length > 0 
+      ? newCommands.slice() 
+      : commandsRef.current.slice();
     
-    // Force update after every command
-    forceObjectsUpdate();
-  }, [forceObjectsUpdate]);
-
-  // Object Management Methods (update these to include forceObjectsUpdate)
-  const createRectangle = useCallback((id, text, width, height, x, y) => {
-    objectManagerRef.current.set(id, {
-      type: 'rectangle',
-      id,
-      text: text || "",
-      width: parseInt(width, 10),
-      height: parseInt(height, 10),
-      x: parseInt(x, 10),
-      y: parseInt(y, 10),
-      color: '#FFFFFF',
-      borderColor: '#000000',
-      textColor: '#000000',
-      alpha: 1,
-      layer: 0,
-      highlight: false
-    });
-  }, []);
-
-  const createLabel = useCallback((id, text, x, y) => {
-    objectManagerRef.current.set(id, {
-      type: 'label',
-      id,
-      text: text || "",
-      x: parseInt(x, 10),
-      y: parseInt(y, 10),
-      textColor: '#000000',
-      alpha: 1,
-      layer: 0
-    });
-  }, []);
-
-  const moveObject = useCallback((id, x, y) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) {
-      obj.x = parseInt(x, 10);
-      obj.y = parseInt(y, 10);
-    }
-  }, []);
-
-  const setText = useCallback((id, text) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) {
-      obj.text = text !== undefined && text !== null ? text.toString() : "";
-    }
-  }, []);
-
-  const setHighlight = useCallback((id, highlight) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) {
-      obj.highlight = parseInt(highlight, 10) === 1;
-    }
-  }, []);
-
-  const createHighlightCircle = useCallback((id, color, x, y) => {
-    objectManagerRef.current.set(id, {
-      type: 'highlightCircle',
-      id,
-      color: color || '#0000FF',
-      x: parseInt(x, 10),
-      y: parseInt(y, 10),
-      radius: 20,
-      alpha: 1,
-      layer: 1
-    });
-  }, []);
-
-  const deleteObject = useCallback((id) => {
-    objectManagerRef.current.delete(id);
-  }, []);
-
-  const setForegroundColor = useCallback((id, color) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) obj.textColor = color;
-  }, []);
-
-  const setLayer = useCallback((id, layer) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) obj.layer = parseInt(layer, 10);
-  }, []);
-
-  const alignRight = useCallback((id, referenceId) => {
-    const obj = objectManagerRef.current.get(id);
-    const refObj = objectManagerRef.current.get(referenceId);
-    if (obj && refObj) {
-      obj.x = refObj.x + refObj.width;
-    }
-  }, []);
-
-  const setAlpha = useCallback((id, alpha) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) obj.alpha = parseFloat(alpha);
+    setCommandsState(commandsToUse);
+    commandHistoryRef.current = commandsToUse.slice();
+    setCurrentStep(0);
+    setIsAnimating(true);
+    
+    commandsRef.current = [];
   }, []);
 
   // Animation execution
@@ -192,7 +211,6 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
         executeCommand(commandsState[currentStep]);
         setCurrentStep(prev => prev + 1);
 
-        // Check if animation is complete
         if (currentStep + 1 >= commandsState.length) {
           setIsAnimating(false);
         }
@@ -218,7 +236,6 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
 
   const skipForward = useCallback(() => {
     if (commandsState.length > 0) {
-      // Execute all remaining commands immediately
       for (let i = currentStep; i < commandsState.length; i++) {
         executeCommand(commandsState[i]);
       }

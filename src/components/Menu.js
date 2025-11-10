@@ -40,9 +40,7 @@ const Menu = () => {
     { index: '04', label: 'Github', external: true, url: 'https://github.com/bilalaniq/VisualCodex' },
   ];
 
-  const handleExternalLink = (url) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+
 
   return (
     <div className="menu-wrapper">
