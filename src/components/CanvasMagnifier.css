@@ -1,0 +1,209 @@
+/* Canvas Magnifier Component Styles */
+
+.canvas-magnifier {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.canvas-magnifier:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-color: #007bff;
+}
+
+.magnifier-header {
+  margin-bottom: 12px;
+}
+
+.magnifier-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.3px;
+}
+
+.magnifier-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.magnifier-btn {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.magnifier-btn:hover:not(:disabled) {
+  background: #007bff;
+  color: #fff;
+  border-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.magnifier-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.magnifier-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #adb5bd;
+}
+
+.zoom-out-btn,
+.zoom-in-btn {
+  font-size: 18px;
+  padding: 6px 8px;
+}
+
+.reset-btn {
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+/* Zoom Input Group */
+.zoom-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 150px;
+}
+
+/* Slider */
+.magnifier-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #dee2e6 0%, #007bff 0%, #007bff calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #dee2e6 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #dee2e6 100%);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.magnifier-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.magnifier-slider::-webkit-slider-thumb:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+  box-shadow: 0 2px 12px rgba(0, 123, 255, 0.7);
+  transform: scale(1.15);
+}
+
+.magnifier-slider::-webkit-slider-thumb:active {
+  box-shadow: 0 2px 16px rgba(0, 123, 255, 0.8);
+}
+
+/* Firefox */
+.magnifier-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.magnifier-slider::-moz-range-thumb:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+  box-shadow: 0 2px 12px rgba(0, 123, 255, 0.7);
+  transform: scale(1.15);
+}
+
+.magnifier-slider::-moz-range-thumb:active {
+  box-shadow: 0 2px 16px rgba(0, 123, 255, 0.8);
+}
+
+.magnifier-slider::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Zoom Percentage Display */
+.zoom-percentage {
+  min-width: 50px;
+  text-align: center;
+  font-weight: 600;
+  color: #007bff;
+  font-size: 13px;
+  background: #e7f3ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #b3d9ff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .canvas-magnifier {
+    padding: 10px 12px;
+  }
+
+  .magnifier-controls {
+    gap: 6px;
+  }
+
+  .magnifier-btn {
+    min-width: 32px;
+    height: 32px;
+    font-size: 14px;
+    padding: 4px 6px;
+  }
+
+  .zoom-input-group {
+    gap: 6px;
+    min-width: 120px;
+  }
+
+  .magnifier-slider {
+    height: 4px;
+  }
+
+  .magnifier-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .magnifier-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .zoom-percentage {
+    min-width: 45px;
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+}

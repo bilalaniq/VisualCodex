@@ -3,18 +3,22 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import useAnimationManager from '../../hooks/useAnimationManager';
 import useAlgorithm from '../../hooks/useAlgorithm';
 import AnimationCanvas from '../../components/AnimationCanvas';
+import CanvasSizeControl from '../../components/CanvasSizeControl';
+import CanvasMagnifier from '../../components/CanvasMagnifier';
 import './StackArray.css';
 
 const StackArray = () => {
   const [inputValue, setInputValue] = useState('');
-  // Removed unused message state
+  const [canvasWidth, setCanvasWidth] = useState(1000);
+  const [canvasHeight, setCanvasHeight] = useState(500);
+  const [zoomLevel, setZoomLevel] = useState(100);
   
-  const animationManager = useAnimationManager(1000, 500);
+  // Remove canvas dimensions from useAnimationManager
+  const animationManager = useAnimationManager();
   const algorithm = useAlgorithm(animationManager);
   
   const { cmd, implementAction, getNextId, addControlToAlgorithmBar } = algorithm;
-  const { getObjects, isAnimating, skipForward, startNewAnimation, setAnimationSpeed, animationSpeed, objectsVersion } = animationManager;
-  // Removed unused clearHistory
+  const { getObjects, isAnimating, isPaused, skipForward, pauseAnimation, resumeAnimation, stepBack, startNewAnimation, setAnimationSpeed, animationSpeed, objectsVersion } = animationManager;
 
   // Constants matching the original
   const ARRAY_START_X = 100;
@@ -229,7 +233,40 @@ const StackArray = () => {
       </div>
 
       <div className="algorithm-controls">
-        <div className="control-group">
+        <div className="canvas-controls-section">
+          <CanvasSizeControl 
+            canvasWidth={canvasWidth}
+            setCanvasWidth={setCanvasWidth}
+            canvasHeight={canvasHeight}
+            setCanvasHeight={setCanvasHeight}
+          />
+          
+          <CanvasMagnifier 
+            onZoomChange={setZoomLevel}
+          />
+          
+          <div className="speed-control">
+            <label htmlFor="speedRange" className="speed-label">Animation Speed</label>
+            <div className="speed-slider-wrapper">
+              <input
+                id="speedRange"
+                type="range"
+                min={50}
+                max={2000}
+                step={10}
+                value={animationSpeed}
+                onChange={(e) => setAnimationSpeed(Number(e.target.value))}
+                className="speed-slider"
+              />
+              <div className="speed-display">
+                <div className="speed-value">{animationSpeed} ms</div>
+                <div className="speed-hint">Lower = faster</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="input-group">
           <input
             type="text"
             value={inputValue}
@@ -240,6 +277,9 @@ const StackArray = () => {
             disabled={isAnimating}
             maxLength={10}
           />
+        </div>
+
+        <div className="control-group">
           <button 
             onClick={pushCallback} 
             className="algorithm-btn primary"
@@ -261,32 +301,33 @@ const StackArray = () => {
           >
             Clear Stack
           </button>
+          
+          <div className="button-divider"></div>
+          
           <button 
-            onClick={skipForward} 
-            className="algorithm-btn warning"
+            onClick={stepBack} 
+            className="algorithm-btn step-back"
+            title="Step Back to Previous Frame"
             disabled={!isAnimating}
           >
-            Skip Forward
+            ⏮ Step Back
           </button>
-        </div>
-        <div className="speed-control">
-          <label htmlFor="speedRange" className="speed-label">Animation Speed</label>
-          <div className="speed-slider-wrapper">
-            <input
-              id="speedRange"
-              type="range"
-              min={50}
-              max={2000}
-              step={10}
-              value={animationSpeed}
-              onChange={(e) => setAnimationSpeed(Number(e.target.value))}
-              className="speed-slider"
-            />
-            <div className="speed-display">
-              <div className="speed-value">{animationSpeed} ms</div>
-              <div className="speed-hint">Lower = faster</div>
-            </div>
-          </div>
+          <button 
+            onClick={pauseAnimation} 
+            className="algorithm-btn pause"
+            title="Pause Animation"
+            disabled={!isAnimating}
+          >
+            ⏸ Pause
+          </button>
+          <button 
+            onClick={skipForward} 
+            className="algorithm-btn skip-forward"
+            title="Skip to End"
+            disabled={!isAnimating}
+          >
+            ⏭ Skip Forward
+          </button>
         </div>
       </div>
 
@@ -294,8 +335,9 @@ const StackArray = () => {
         <AnimationCanvas
           key={`objects-${objectsVersion}`}
           objects={getObjects()}
-          width={1000}
-          height={500}
+          width={canvasWidth}
+          height={canvasHeight}
+          zoom={zoomLevel}
         />
       </div>
 
@@ -305,21 +347,34 @@ const StackArray = () => {
           <p>Size: {topRef.current} / {SIZE}</p>
           <p>Status: {topRef.current === 0 ? 'Empty' : topRef.current >= SIZE ? 'Full' : 'Available'}</p>
           <p>Top Element: {topRef.current > 0 ? stackDataRef.current[topRef.current - 1] : 'None'}</p>
+          {!isAnimating && <p className="animation-status">✓ Animation Complete</p>}
         </div>
         
         <div className="instructions">
           <h3>Instructions:</h3>
           <ul>
-            <li>Enter a value and click "Push" to add to stack</li>
-            <li>Click "Pop" to remove the top element</li>
-            <li>Click "Clear Stack" to reset the stack</li>
-            <li>Click "Skip Forward" to complete current animation</li>
-            <li>Adjust animation speed to make it faster or slower</li>
+            <li><strong>Push Value:</strong> Enter a value and click "Push" to add to stack (or press Enter)</li>
+            <li><strong>Pop:</strong> Click "Pop" to remove the top element</li>
+            <li><strong>Clear Stack:</strong> Click "Clear Stack" to reset all data</li>
+            <li><strong>Canvas Controls:</strong>
+              <ul>
+                <li>Adjust <strong>Canvas Size</strong> (width and height) to change visualization area</li>
+                <li>Use <strong>Zoom</strong> control to magnify the visualization (50% to 300%)</li>
+                <li>Adjust <strong>Animation Speed</strong> to control step timing</li>
+              </ul>
+            </li>
+            <li><strong>Animation Controls:</strong>
+              <ul>
+                <li><strong>⏮ Step Back</strong> - Go to previous animation frame</li>
+                <li><strong>⏸ Pause</strong> - Pause animation at current frame</li>
+                <li><strong>⏭ Skip Forward</strong> - Complete animation instantly</li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>
     </div>
-  );
+  ); 
 };
 
 export default StackArray;

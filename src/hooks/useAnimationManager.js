@@ -1,10 +1,11 @@
 // hooks/useAnimationManager.js
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-const useAnimationManager = (canvasWidth, canvasHeight) => {
+const useAnimationManager = () => {
   const commandsRef = useRef([]);
   const [commandsState, setCommandsState] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [objectsVersion, setObjectsVersion] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [animationSpeed, setAnimationSpeed] = useState(500);
@@ -206,19 +207,20 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
 
   // Animation execution
   useEffect(() => {
-    if (isAnimating && commandsState.length > 0 && currentStep < commandsState.length) {
+    if (isAnimating && !isPaused && commandsState.length > 0 && currentStep < commandsState.length) {
       const timer = setTimeout(() => {
         executeCommand(commandsState[currentStep]);
         setCurrentStep(prev => prev + 1);
 
         if (currentStep + 1 >= commandsState.length) {
           setIsAnimating(false);
+          setIsPaused(false);
         }
       }, animationSpeed);
 
       return () => clearTimeout(timer);
     }
-  }, [isAnimating, commandsState, currentStep, animationSpeed, executeCommand]);
+  }, [isAnimating, isPaused, commandsState, currentStep, animationSpeed, executeCommand]);
 
   const getNextId = useCallback(() => {
     return (nextIdRef.current++).toString();
@@ -244,6 +246,29 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
     setIsAnimating(false);
   }, [commandsState, currentStep, executeCommand]);
 
+  const pauseAnimation = useCallback(() => {
+    setIsPaused(true);
+  }, []);
+
+  const resumeAnimation = useCallback(() => {
+    setIsPaused(false);
+  }, []);
+
+  const stepBack = useCallback(() => {
+    if (currentStep > 0) {
+      // Reset to the previous step by clearing and replaying from start
+      clearObjects();
+      nextIdRef.current = 0;
+      
+      const newStep = currentStep - 1;
+      for (let i = 0; i < newStep; i++) {
+        executeCommand(commandsState[i]);
+      }
+      setCurrentStep(newStep);
+      setIsAnimating(false);
+    }
+  }, [currentStep, commandsState, executeCommand, clearObjects]);
+
   const clearHistory = useCallback(() => {
     commandHistoryRef.current = [];
     commandsRef.current = [];
@@ -263,6 +288,7 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
     cmd,
     startNewAnimation,
     isAnimating,
+    isPaused,
     currentStep,
     objectsVersion,
     totalSteps: commandsState.length,
@@ -270,6 +296,9 @@ const useAnimationManager = (canvasWidth, canvasHeight) => {
     clearObjects,
     getNextId,
     skipForward,
+    pauseAnimation,
+    resumeAnimation,
+    stepBack,
     clearHistory,
     resetAnimation,
     setAnimationSpeed,

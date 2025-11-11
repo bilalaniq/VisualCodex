@@ -1,7 +1,7 @@
 // components/AnimationCanvas.jsx
 import React, { useRef, useEffect, useMemo } from 'react';
 
-const AnimationCanvas = ({ objects, width, height }) => {
+const AnimationCanvas = ({ objects, width, height, zoom = 100 }) => {
   const canvasRef = useRef(null);
 
   // Use useMemo to prevent unnecessary re-renders while ensuring updates
@@ -11,10 +11,17 @@ const AnimationCanvas = ({ objects, width, height }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    console.log('AnimationCanvas rendering with dimensions:', { width, height });
+
     const ctx = canvas.getContext('2d');
     
     // Clear the canvas completely
     ctx.clearRect(0, 0, width, height);
+    
+    // Apply zoom transformation
+    const zoomFactor = zoom / 100;
+    ctx.save();
+    ctx.scale(zoomFactor, zoomFactor);
     
     // Set background
     ctx.fillStyle = '#fafafa';
@@ -73,7 +80,9 @@ const AnimationCanvas = ({ objects, width, height }) => {
       
       ctx.restore();
     });
-  }, [canvasObjects, width, height]);
+    
+    ctx.restore(); // Restore zoom transformation
+  }, [canvasObjects, width, height, zoom]);
 
   return (
     <canvas
@@ -81,10 +90,10 @@ const AnimationCanvas = ({ objects, width, height }) => {
       width={width}
       height={height}
       style={{ 
-        border: '1px solid #ccc', 
         background: '#fafafa',
         display: 'block',
-        margin: '0 auto'
+        width: '100%',
+        maxWidth: '100%'
       }}
     />
   );
