@@ -1,5 +1,5 @@
 // hooks/useAnimationManager.js
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 
 const useAnimationManager = () => {
   const commandsRef = useRef([]);
@@ -9,10 +9,17 @@ const useAnimationManager = () => {
   const [objectsVersion, setObjectsVersion] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [animationSpeed, setAnimationSpeed] = useState(500);
+  const animationSpeedRef = useRef(animationSpeed);
   // Removed unused animationRef
   const commandHistoryRef = useRef([]);
   const objectManagerRef = useRef(new Map());
   const nextIdRef = useRef(0);
+  const baselineCommandsRef = useRef([]);
+  const internalHandlersRef = useRef({});
+  const snapshotsRef = useRef([]);
+  const isAnimatingRef = useRef(false);
+  const currentStepRef = useRef(0);
+  const commandsStateRef = useRef([]);
 
   // Force objects update
   const forceObjectsUpdate = useCallback(() => {
@@ -91,83 +98,131 @@ const useAnimationManager = () => {
     });
     forceObjectsUpdate();
   }, [forceObjectsUpdate]);
+  const immediateModeRef = useRef(false);
 
   const deleteObject = useCallback((id) => {
-    objectManagerRef.current.delete(id);
-    forceObjectsUpdate();
+    if (objectManagerRef.current.has(id)) {
+      objectManagerRef.current.delete(id);
+      forceObjectsUpdate();
+    }
   }, [forceObjectsUpdate]);
 
   const setForegroundColor = useCallback((id, color) => {
     const obj = objectManagerRef.current.get(id);
-    if (obj) obj.textColor = color;
-    forceObjectsUpdate();
+    if (obj) {
+      obj.color = color || obj.color;
+      forceObjectsUpdate();
+    }
   }, [forceObjectsUpdate]);
 
   const setLayer = useCallback((id, layer) => {
     const obj = objectManagerRef.current.get(id);
-    if (obj) obj.layer = parseInt(layer, 10);
-    forceObjectsUpdate();
+    if (obj) {
+      obj.layer = parseInt(layer, 10) || 0;
+      forceObjectsUpdate();
+    }
   }, [forceObjectsUpdate]);
 
   const alignRight = useCallback((id, referenceId) => {
     const obj = objectManagerRef.current.get(id);
     const refObj = objectManagerRef.current.get(referenceId);
-    if (obj && refObj) {
-      obj.x = refObj.x + refObj.width;
+    if (obj && refObj && refObj.width !== undefined) {
+      obj.x = refObj.x + refObj.width + 8; // 8px padding
+      obj.y = refObj.y;
       forceObjectsUpdate();
     }
   }, [forceObjectsUpdate]);
 
   const setAlpha = useCallback((id, alpha) => {
     const obj = objectManagerRef.current.get(id);
-    if (obj) obj.alpha = parseFloat(alpha);
-    forceObjectsUpdate();
+    if (obj) {
+      obj.alpha = parseFloat(alpha) || 1;
+      forceObjectsUpdate();
+    }
   }, [forceObjectsUpdate]);
 
-  // Now define executeCommand with all dependencies
-  const executeCommand = useCallback((commandString) => {
+  const executeCommand = useCallback(async (commandString) => {
     const [command, ...args] = commandString.split('<;>');
 
     try {
       switch (command) {
         case 'CreateRectangle':
           createRectangle(...args);
-          break;
+          return;
         case 'CreateLabel':
           createLabel(...args);
-          break;
-        case 'Move':
-          moveObject(...args);
-          break;
+          return;
+        case 'Move': {
+          // args: id, x, y
+          const [id, xStr, yStr] = args;
+          const x = parseInt(xStr, 10);
+          const y = parseInt(yStr, 10);
+          const obj = objectManagerRef.current.get(id);
+          if (!obj) return;
+
+          if (immediateModeRef.current) {
+            obj.x = x;
+            obj.y = y;
+            forceObjectsUpdate();
+            return;
+          }
+
+          const startX = obj.x;
+          const startY = obj.y;
+          const dx = x - startX;
+          const dy = y - startY;
+          const duration = Math.max(50, animationSpeedRef.current || 50);
+
+          await new Promise((resolve) => {
+            const start = performance.now();
+            function step(now) {
+              const t = Math.min(1, (now - start) / duration);
+              obj.x = Math.round(startX + dx * t);
+              obj.y = Math.round(startY + dy * t);
+              forceObjectsUpdate();
+              if (t < 1) requestAnimationFrame(step);
+              else resolve();
+            }
+            requestAnimationFrame(step);
+          });
+          return;
+        }
         case 'SetText':
           setText(...args);
-          break;
+          return;
         case 'SetHighlight':
           setHighlight(...args);
-          break;
+          return;
         case 'CreateHighlightCircle':
           createHighlightCircle(...args);
-          break;
+          return;
         case 'Delete':
           deleteObject(...args);
-          break;
+          return;
         case 'SetForegroundColor':
           setForegroundColor(...args);
-          break;
+          return;
         case 'SetLayer':
           setLayer(...args);
-          break;
+          return;
         case 'AlignRight':
           alignRight(...args);
-          break;
+          return;
         case 'SetAlpha':
           setAlpha(...args);
-          break;
+          return;
         case 'Step':
-          // Pause marker - no object change needed
-          break;
+          return 'Step';
+        case 'Internal': {
+          const handlerName = args[0];
+          const handlerArgs = args.slice(1);
+          const handler = internalHandlersRef.current && internalHandlersRef.current[handlerName];
+          if (typeof handler === 'function') handler(...handlerArgs);
+          return;
+        }
         default:
           console.warn('Unknown command:', command);
+          return;
       }
     } catch (error) {
       console.error('Error executing command:', commandString, error);
@@ -183,8 +238,14 @@ const useAnimationManager = () => {
     setForegroundColor,
     setLayer,
     alignRight,
-    setAlpha
+    setAlpha,
+    forceObjectsUpdate
   ]);
+
+  // Keep animationSpeedRef in sync so executeCommand doesn't need to re-create when speed changes
+  useEffect(() => {
+    animationSpeedRef.current = animationSpeed;
+  }, [animationSpeed]);
 
   const cmd = useCallback((command, ...args) => {
     const commandString = [command, ...args].join('<;>');
@@ -192,33 +253,76 @@ const useAnimationManager = () => {
     return commandString;
   }, []);
 
+  const registerInternalHandler = useCallback((name, fn) => {
+    internalHandlersRef.current[name] = fn;
+    return () => { delete internalHandlersRef.current[name]; };
+  }, []);
+
   const startNewAnimation = useCallback((newCommands = []) => {
-    const commandsToUse = Array.isArray(newCommands) && newCommands.length > 0 
-      ? newCommands.slice() 
+    // Prevent starting a new animation if an animation is already running or there are pending steps
+    if (isAnimatingRef.current || (commandsStateRef.current.length > 0 && currentStepRef.current < commandsStateRef.current.length)) {
+      return false;
+    }
+
+    const commandsToUse = Array.isArray(newCommands) && newCommands.length > 0
+      ? newCommands.slice()
       : commandsRef.current.slice();
-    
+
     setCommandsState(commandsToUse);
     commandHistoryRef.current = commandsToUse.slice();
     setCurrentStep(0);
     setIsAnimating(true);
-    
+
     commandsRef.current = [];
+    return true;
   }, []);
+
+  // Keep refs in sync with state so startNewAnimation can read latest values
+  useEffect(() => { isAnimatingRef.current = isAnimating; }, [isAnimating]);
+  useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
+  useEffect(() => { commandsStateRef.current = commandsState; }, [commandsState]);
 
   // Animation execution
   useEffect(() => {
+    // Execute animation in "steps" grouped by 'Step' commands.
     if (isAnimating && !isPaused && commandsState.length > 0 && currentStep < commandsState.length) {
-      const timer = setTimeout(() => {
-        executeCommand(commandsState[currentStep]);
-        setCurrentStep(prev => prev + 1);
+      let cancelled = false;
 
-        if (currentStep + 1 >= commandsState.length) {
+      (async () => {
+        let nextIndex = currentStep;
+        while (nextIndex < commandsState.length && !cancelled) {
+          const commandString = commandsState[nextIndex];
+          const cmdName = commandString.split('<;>')[0];
+          const res = await executeCommand(commandString);
+          nextIndex++;
+          if (res === 'Step' || cmdName === 'Step') {
+            // Advance currentStep to the next command after the processed group
+            setCurrentStep(nextIndex);
+
+            // Capture snapshot of objects after this logical step
+            try {
+              const cloneMap = new Map();
+              for (const [k, v] of objectManagerRef.current.entries()) {
+                cloneMap.set(k, Object.assign({}, v));
+              }
+              snapshotsRef.current.push({ stepIndex: nextIndex, objects: cloneMap });
+            } catch (e) {
+              // ignore snapshot errors
+            }
+
+            // pause here until next tick
+            break;
+          }
+        }
+
+        // If we've reached the end, finish animation
+        if (nextIndex >= commandsState.length) {
           setIsAnimating(false);
           setIsPaused(false);
         }
-      }, animationSpeed);
+      })();
 
-      return () => clearTimeout(timer);
+      return () => { cancelled = true; };
     }
   }, [isAnimating, isPaused, commandsState, currentStep, animationSpeed, executeCommand]);
 
@@ -237,14 +341,46 @@ const useAnimationManager = () => {
   }, [forceObjectsUpdate]);
 
   const skipForward = useCallback(() => {
-    if (commandsState.length > 0) {
-      for (let i = currentStep; i < commandsState.length; i++) {
-        executeCommand(commandsState[i]);
+    // Jump to the end immediately. Use immediateMode to avoid animations.
+    (async () => {
+      immediateModeRef.current = true;
+      if (commandsState.length > 0) {
+        for (let i = currentStep; i < commandsState.length; i++) {
+          try { await executeCommand(commandsState[i]); } catch (e) { /* ignore */ }
+        }
+        setCurrentStep(commandsState.length);
       }
-      setCurrentStep(commandsState.length);
+      immediateModeRef.current = false;
+      setIsAnimating(false);
+    })();
+  }, [commandsState, currentStep, executeCommand]);
+
+  // Apply commands immediately without animation (useful for initial prerender)
+  const applyCommandsImmediately = useCallback(async (commands = []) => {
+    const cmdsToRun = Array.isArray(commands) && commands.length > 0 ? commands : commandsRef.current.slice();
+    // Save baseline (static scene) so stepBack can restore it
+    baselineCommandsRef.current = cmdsToRun.slice();
+    immediateModeRef.current = true;
+    for (let i = 0; i < cmdsToRun.length; i++) {
+      try { await executeCommand(cmdsToRun[i]); } catch (e) { /* ignore */ }
+    }
+    immediateModeRef.current = false;
+    // Mark that we've executed everything
+    setCommandsState([]);
+    setCurrentStep(cmdsToRun.length);
+    // Record baseline snapshot
+    try {
+      const cloneMap = new Map();
+      for (const [k, v] of objectManagerRef.current.entries()) {
+        cloneMap.set(k, Object.assign({}, v));
+      }
+      snapshotsRef.current = [{ stepIndex: cmdsToRun.length, objects: cloneMap }];
+    } catch (e) {
+      snapshotsRef.current = [];
     }
     setIsAnimating(false);
-  }, [commandsState, currentStep, executeCommand]);
+    setIsPaused(false);
+  }, [executeCommand]);
 
   const pauseAnimation = useCallback(() => {
     setIsPaused(true);
@@ -255,19 +391,65 @@ const useAnimationManager = () => {
   }, []);
 
   const stepBack = useCallback(() => {
-    if (currentStep > 0) {
-      // Reset to the previous step by clearing and replaying from start
-      clearObjects();
-      nextIdRef.current = 0;
-      
-      const newStep = currentStep - 1;
-      for (let i = 0; i < newStep; i++) {
-        executeCommand(commandsState[i]);
+    // Restore previous snapshot if available
+    if (snapshotsRef.current.length > 1) {
+      // Pop current snapshot
+      snapshotsRef.current.pop();
+      const prev = snapshotsRef.current[snapshotsRef.current.length - 1];
+      if (prev) {
+        objectManagerRef.current = new Map();
+        for (const [k, v] of prev.objects.entries()) {
+          objectManagerRef.current.set(k, Object.assign({}, v));
+        }
+        forceObjectsUpdate();
+        setCurrentStep(prev.stepIndex);
       }
-      setCurrentStep(newStep);
-      setIsAnimating(false);
+    } else if (snapshotsRef.current.length === 1) {
+      const base = snapshotsRef.current[0];
+      if (base) {
+        objectManagerRef.current = new Map();
+        for (const [k, v] of base.objects.entries()) {
+          objectManagerRef.current.set(k, Object.assign({}, v));
+        }
+        forceObjectsUpdate();
+        setCurrentStep(base.stepIndex);
+      }
     }
-  }, [currentStep, commandsState, executeCommand, clearObjects]);
+    setIsAnimating(false);
+  }, [forceObjectsUpdate]);
+
+  const stepForward = useCallback(() => {
+    (async () => {
+      // Execute next logical group of commands up to and including the next 'Step' marker
+      if (currentStep >= commandsState.length) return;
+
+      // Execute commands from currentStep until we hit a 'Step' or end
+      let nextIndex = currentStep;
+      while (nextIndex < commandsState.length) {
+        const cmdName = commandsState[nextIndex].split('<;>')[0];
+        try { await executeCommand(commandsState[nextIndex]); } catch (e) { /* ignore */ }
+        nextIndex++;
+        if (cmdName === 'Step') break;
+      }
+
+      setCurrentStep(nextIndex);
+      // Capture snapshot after manual step forward
+      try {
+        const cloneMap = new Map();
+        for (const [k, v] of objectManagerRef.current.entries()) {
+          cloneMap.set(k, Object.assign({}, v));
+        }
+        snapshotsRef.current.push({ stepIndex: nextIndex, objects: cloneMap });
+      } catch (e) {
+        // ignore
+      }
+      // If we've reached end, ensure animation state is not running
+      if (nextIndex >= commandsState.length) {
+        setIsAnimating(false);
+        setIsPaused(false);
+      }
+    })();
+  }, [currentStep, commandsState, executeCommand]);
 
   const clearHistory = useCallback(() => {
     commandHistoryRef.current = [];
@@ -289,6 +471,8 @@ const useAnimationManager = () => {
     startNewAnimation,
     isAnimating,
     isPaused,
+  // True when the currentStep corresponds exactly to the latest recorded snapshot
+  isAtLatestSnapshot: (snapshotsRef.current.length === 0) ? true : currentStep === (snapshotsRef.current[snapshotsRef.current.length - 1].stepIndex),
     currentStep,
     objectsVersion,
     totalSteps: commandsState.length,
@@ -299,8 +483,11 @@ const useAnimationManager = () => {
     pauseAnimation,
     resumeAnimation,
     stepBack,
+    stepForward,
     clearHistory,
     resetAnimation,
+    applyCommandsImmediately,
+    registerInternalHandler,
     setAnimationSpeed,
     animationSpeed
   };

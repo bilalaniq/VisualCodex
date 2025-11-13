@@ -13,14 +13,24 @@ const useAlgorithm = (animationManager) => {
   }, []);
 
   const implementAction = useCallback((action, value) => {
+    // Prevent starting a new action if animation manager indicates an animation is running,
+    // paused, or there are pending steps ahead (i.e., currentStep < totalSteps)
+    if (animationManager) {
+      if (animationManager.isAnimating || animationManager.isPaused) return null;
+      if (typeof animationManager.currentStep === 'number' && typeof animationManager.totalSteps === 'number') {
+        if (animationManager.currentStep < animationManager.totalSteps) return null;
+      }
+    }
+
     if (recordAnimationRef.current) {
       actionHistoryRef.current.push([action, value]);
     }
     
     const commands = action(value);
-    startNewAnimation(commands);
+    const started = startNewAnimation(commands);
+    if (!started) return null;
     return commands;
-  }, [startNewAnimation, recordAnimationRef]);
+  }, [startNewAnimation, recordAnimationRef, animationManager]);
 
   const addControlToAlgorithmBar = useCallback((type, name) => {
     return { type, name, id: getNextId() };
