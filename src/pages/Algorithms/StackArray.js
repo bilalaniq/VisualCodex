@@ -216,7 +216,7 @@ const StackArray = () => {
     
     
     return commands;
-  }, [cmd, getNextId]);
+  }, [cmd, getNextId, getObjects]);
 
   const clearStack = useCallback(() => {
     const commands = [];
