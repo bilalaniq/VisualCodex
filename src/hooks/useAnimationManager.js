@@ -1,5 +1,5 @@
 // hooks/useAnimationManager.js
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 const useAnimationManager = () => {
   const commandsRef = useRef([]);
@@ -230,7 +230,6 @@ const useAnimationManager = () => {
   }, [
     createRectangle,
     createLabel,
-    moveObject,
     setText,
     setHighlight,
     createHighlightCircle,

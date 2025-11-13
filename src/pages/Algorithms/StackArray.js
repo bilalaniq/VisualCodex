@@ -237,13 +237,13 @@ const StackArray = () => {
       setInputValue('');
       implementAction(push, inputValue);
     }
-  }, [inputValue, isAnimating, isPaused, isAtLatestSnapshot, currentStep, totalSteps, implementAction, push]);
+  }, [inputValue, isAnimating, isPaused, isAtLatestSnapshot, implementAction, push]);
 
   const popCallback = useCallback(() => {
     if (!isAnimating && !isPaused && isAtLatestSnapshot && topRef.current > 0) {
       implementAction(pop);
     }
-  }, [isAnimating, isPaused, isAtLatestSnapshot, currentStep, totalSteps, implementAction, pop]);
+  }, [isAnimating, isPaused, isAtLatestSnapshot, implementAction, pop]);
 
   const clearCallback = useCallback(() => {
     if (!isAnimating) {
@@ -259,7 +259,7 @@ const StackArray = () => {
         e.preventDefault();
       }
     }
-  }, [pushCallback, isAnimating, isPaused, isAtLatestSnapshot, currentStep, totalSteps]);
+  }, [pushCallback, isAnimating, isPaused, isAtLatestSnapshot]);
 
   // Initialize on component mount
   useEffect(() => {
