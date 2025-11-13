@@ -60,15 +60,6 @@ const useAnimationManager = () => {
     forceObjectsUpdate();
   }, [forceObjectsUpdate]);
 
-  const moveObject = useCallback((id, x, y) => {
-    const obj = objectManagerRef.current.get(id);
-    if (obj) {
-      obj.x = parseInt(x, 10);
-      obj.y = parseInt(y, 10);
-      forceObjectsUpdate();
-    }
-  }, [forceObjectsUpdate]);
-
   const setText = useCallback((id, text) => {
     const obj = objectManagerRef.current.get(id);
     if (obj) {

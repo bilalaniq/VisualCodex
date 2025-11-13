@@ -302,7 +302,8 @@ const StackArray = () => {
         stackDataRef.current[i] = null;
       }
     }
-  }, [getObjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Add controls to algorithm bar - remove unused variables
   useEffect(() => {
