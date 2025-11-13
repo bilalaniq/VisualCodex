@@ -228,6 +228,7 @@ const StackArray = () => {
     topRef.current = 0;
     cmd("SetText", topIDRef.current, "0");
     cmd("SetText", messageIDRef.current, "Stack Cleared");
+    cmd("Step");
     
     return commands;
   }, [cmd]);
