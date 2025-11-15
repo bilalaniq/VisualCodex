@@ -1,30 +1,42 @@
 // hooks/useAnimationManager.js
 import { useState, useRef, useCallback, useEffect } from 'react';
 
+// useRef is like a pocket for your component. It lets you keep something (usually an element or a value) and know that it will be there, unchanged, every time your component re-renders.
+// useState is React's memory for a component. It lets your component "remember" information that can change, and update the screen when that information changes.
+
+
+
+
 const useAnimationManager = () => {
-  const commandsRef = useRef([]);
-  const [commandsState, setCommandsState] = useState([]);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [objectsVersion, setObjectsVersion] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [animationSpeed, setAnimationSpeed] = useState(500);
-  const animationSpeedRef = useRef(animationSpeed);
+  const commandsRef = useRef([]);    // This stores the main list of animation commands.
+  const [commandsState, setCommandsState] = useState([]);   // This stores the commands that should appear on the UI. 
+  const [isAnimating, setIsAnimating] = useState(false);  // Tracks whether animation is currently running.
+  const [isPaused, setIsPaused] = useState(false);        // Tracks whether animation is currently paused.
+  const [objectsVersion, setObjectsVersion] = useState(0);   // This is a number that forces React to re-render animated objects.
+  const [currentStep, setCurrentStep] = useState(0);         // Tracks the current step in the animation sequence.
+  const [animationSpeed, setAnimationSpeed] = useState(500);   // shows the speed of the animation in milliseconds.
+  const animationSpeedRef = useRef(animationSpeed);         // Keep a ref for animation speed to avoid re-creating functions
   // Removed unused animationRef
-  const commandHistoryRef = useRef([]);
-  const objectManagerRef = useRef(new Map());
-  const nextIdRef = useRef(0);
-  const baselineCommandsRef = useRef([]);
-  const internalHandlersRef = useRef({});
-  const snapshotsRef = useRef([]);
-  const isAnimatingRef = useRef(false);
-  const currentStepRef = useRef(0);
-  const commandsStateRef = useRef([]);
+  const commandHistoryRef = useRef([]);             // This keeps a history of all commands ever executed.
+  const objectManagerRef = useRef(new Map());     // This manages all the animated objects by their IDs. This tracks actual visual objects.
+  const nextIdRef = useRef(0);                    // This helps generate unique IDs for new objects.
+  const baselineCommandsRef = useRef([]);         // Stores the original command list before animation starts.
+  const internalHandlersRef = useRef({});         // This holds internal handler functions that can be called from commands.
+  const snapshotsRef = useRef([]);                // This keeps snapshots of object states at various steps for stepping back in the animation. Stores snapshots of UI states at each step.
+  const isAnimatingRef = useRef(false);           // Tracks whether animation is currently running (ref version).
+  const currentStepRef = useRef(0);              // Tracks the current step in the animation sequence (ref version).
+  const commandsStateRef = useRef([]);           // This stores the commands that should appear on the UI (ref version).
 
   // Force objects update
+  // This function increments objectsVersion to trigger a re-render of animated objects.
+  // Incrementing objectsVersion forces React to re-render your component so the UI reflects the updated objects.
   const forceObjectsUpdate = useCallback(() => {
     setObjectsVersion(prev => prev + 1);
   }, []);
+  // useCallback ensures that the same function instance is used across renders.
+  // This avoids unnecessary re-renders if this function is passed as a dependency elsewhere.
+
+  
 
   // Define all object management functions first with proper dependencies
   const createRectangle = useCallback((id, text, width, height, x, y) => {
@@ -461,8 +473,8 @@ const useAnimationManager = () => {
     startNewAnimation,
     isAnimating,
     isPaused,
-  // True when the currentStep corresponds exactly to the latest recorded snapshot
-  isAtLatestSnapshot: (snapshotsRef.current.length === 0) ? true : currentStep === (snapshotsRef.current[snapshotsRef.current.length - 1].stepIndex),
+    // True when the currentStep corresponds exactly to the latest recorded snapshot
+    isAtLatestSnapshot: (snapshotsRef.current.length === 0) ? true : currentStep === (snapshotsRef.current[snapshotsRef.current.length - 1].stepIndex),
     currentStep,
     objectsVersion,
     totalSteps: commandsState.length,

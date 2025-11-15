@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './FrontPage.css';
 
 const FrontPage = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate();   // useNavigate is a React Router hook. It gives you a function (navigate) that can programmatically change the URL.
 
   const handleExploreClick = () => {
     navigate('/algorithms');

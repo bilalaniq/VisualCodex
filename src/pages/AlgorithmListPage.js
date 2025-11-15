@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './AlgorithmListPage.css';
+import Footer from '../components/Footer';
 
 const AlgorithmListPage = () => {
   const algorithmCategories = [
@@ -133,26 +134,12 @@ const AlgorithmListPage = () => {
               {category.algorithms.map((algo, algoIndex) => (
                 <li key={algoIndex} className="algorithm-item">
                   <div className="algorithm-link-container">
-                    {/**
-                     * If the link points to a static HTML file (e.g. "StackArray.html"),
-                     * render a plain anchor that navigates in the same tab.
-                     * Otherwise, use React Router's Link for internal SPA routes.
-                     */}
-                    {typeof algo.link === 'string' && algo.link.toLowerCase().endsWith('.html') ? (
-                      <a
-                        href={algo.link.startsWith('/') || algo.link.startsWith('http') ? algo.link : `/${algo.link}`}
-                        className={`algorithm-link ${algo.note?.includes('coming soon') ? 'coming-soon' : ''}`}
-                      >
-                        {algo.name}
-                      </a>
-                    ) : (
-                      <Link
-                        to={algo.link}
-                        className={`algorithm-link ${algo.note?.includes('coming soon') ? 'coming-soon' : ''}`}
-                      >
-                        {algo.name}
-                      </Link>
-                    )}
+                    <Link
+                      to={algo.link}
+                      className={`algorithm-link ${algo.note?.includes('coming soon') ? 'coming-soon' : ''}`}
+                    >
+                      {algo.name}
+                    </Link>
                     {algo.note && <span className="note"> {algo.note}</span>}
                   </div>
                   
@@ -172,16 +159,7 @@ const AlgorithmListPage = () => {
         ))}
       </div>
 
-      <footer className="page-footer">
-        <div className="footer-content">
-          <p>
-            Copyright 2025 <a href="https://nullsect-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">Bilal Aniq</a>
-          </p>
-          <p className="footer-note">
-            This project is inspired by classic algorithm visualization tools and built with modern web technologies.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
